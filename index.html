@@ -298,15 +298,22 @@
 		set_content("fd");
 </script>
 <py-script>
-    from meteor_reasoner.entailment import entail
+    from js import console
+    from meteor_reasoner.entailment.entail import is_entail
     def my_function(*args, **kwargs):
+        console.log(f'args: {args}')
+        console.log(f'kwargs: {kwargs}')
         dataset = Element('dataset').element.value
         dataset = dataset.split("\n")
         program = Element('program').element.value
         program = program.split("\n")
         fact = Element('fact').element.value
+        console.log(program)
+        console.log(dataset)
+        console.log(fact)
+
         fact = fact.strip()
-        flag =  entail(dataset, program, fact)
+        flag =  is_entail(dataset, program, fact)
         if flag:
             Element('result').element.innerText = "Entailed"
         else:
