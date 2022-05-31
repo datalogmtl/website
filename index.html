@@ -256,22 +256,34 @@
 
 </script>
 
+
 <script type="text/javascript">
 	$("#examples").change(function() {
 		// jQuery
 		var selectedVal = $(this).find(':selected').val();
 		// var selectedText = $(this).find(':selected').text();
-		set_content(selectedVal);
+    if (selectedVal == "sr"){
+          var dataset = "HighTemperature(sensor1)@[0,27.5]\nHighTemperature(sensor2)@3.5\nHighTemperature(sensor2)@5.1\nHighTemperature(sensor2)@10\nHighTemperature(sensor2)@14.7\nHighTemperature(sensor2)@20\nSameLocation(sensor1,sensor2)@(-inf,+inf)";
+          var program = "Overheat(X) :- ALWAYS[-10,0] HighTemperature(X)\nOverheat(X) :- ALWAYS[-20,0] SOMETIME[-5.5,0] HighTemperature(X)\nAlert :- Overheat(X), Overheat(Y), SameLocation(X,Y)";
+          var fact = "Alert@25"
+          var desc = "<b>Description</b>:Consider a dataset with high temperature indications provided by sensors as well as with "
+                "information about those sensors’ location. We can construct a program detecting overheated sensors, which "
+                "are defined as sensors that continuously reported high temperature within the last 10 minutes, or reported high "
+                "temperature in the last 20 minutes with high frequency (at least once per every 5.5 minutes). "
+                "Then, an alert is triggered if two sensors in the same locations are overheated.";
+          var observe = "<b>Observe</b>: We used a nesting of ALWAYS and SOMETIME operators to encoded events which happen frequently in a given period of time. Depending on the intervals used in these operators, we can control the period and the frequency of the events, respectively.";
+          $("#dataset").val(dataset);
+          $("#program").val(program);
+          $("#fact").val(fact);
+          $("#desc").html(desc);
+          $("#observe").html(observe);
+    }
    });
 </script>
 <script type="text/javascript">
-       set_content("fd");
+		set_content("fd");
 </script>
 
-<py-env>
-- 'littleutils-0.2.2-py3-none-any.whl'
-- 'meteor_reasoner-1.0.2-py3-none-any.whl'
-</py-env>
 
 
 
