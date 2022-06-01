@@ -236,7 +236,7 @@
 
 </script>
 
-<script type="text/javascript">
+<!-- <script type="text/javascript">
     function set_content(example) {
         $.ajax(
             {
@@ -268,9 +268,7 @@
             });
     }
 
-</script>
-
-
+</script> -->
 <script type="text/javascript">
 	$("#examples").change(function() {
 		// jQuery
@@ -292,10 +290,100 @@
           $("#desc").html(desc);
           $("#observe").html(observe);
     }
+    else if(selectedVal == "vi"){
+         var dataset = "Infected(adam)@0\nVaccinated(adam)@162\nNoSymptoms(adam)@[100,185]\nInfected(betty)@0\nVaccinated(betty)@163\nNoSymptoms(betty)@[100,185]\nInfected(charlie)@-1\nVaccinated(charlie)@162\nNoSymptoms(charlie)@[100,185]";
+         var program = "Immune(X) :- NoSymptoms(X) UNTIL[-28,-21] Vaccinated(X)\nImmune(X) :- SOMETIME[-183,-10) Infected(X), ALWAYS[-10,0]NoSymptoms(X)\nNegativeTest(X) :- ALWAYS[-5,0] Immune(X)";
+         var fact = "NegativeTest(adam)@185";
+         var desc = "<b>Description</b>:Consider a dataset with patients’ records storing times of virus infections vaccinations, and absence of symptoms detections. Then, we can write rules that allow us to predict"
+                " when a patient is immune to the virus and, consequently, when their tests will provide a negative result. "
+                "The first rule states that vaccinated individuals who remain without symptoms 3 to 4 weeks (i.e., 21 to 28 days) "
+                "following vaccination will develop immunity. By the second rule, individuals who were infected within the "
+                "last 6 months (discounting the last ten days when they had no symptoms) are also immune. "
+                "Finally, those immune for the last 5 days display a negative test result.";
+        var observe = "<b>Observe</b>: The fact NegativeTest(adam)@185 is entailed by the dataset and the program. However, NegativeTest(betty)@185 and NegativeTest(charlie)@185 are not entailed, because betty was vaccinated one day later than adam whereas charlie was infected one day before adam. Thus, we cannot derive that betty is immune at day 184 nor that charlie is immune at day 183.";
+        $("#dataset").val(dataset);
+        $("#program").val(program);
+        $("#fact").val(fact);
+        $("#desc").html(desc);
+        $("#observe").html(observe);
+    }
+    else if(selectedVal == "im"){
+        var dataset = "Alive(adam)@0";
+        var program = "ALWAYS[0,1] Alive(X) :-  Alive(X)\nImmortal(X) :- ALWAYS[0,+inf) Alive(X)";
+        var fact = "Immortal(adam)@0";
+        var desc =  "<b>Description</b>:Consider two following rules. The first rule states that if X is Alive at some day, "
+                "then they will be Alive until the next day. The second rule states that if X is Alive always "
+                "in future, then they are Immortal. Now, if  adam is known to be Alive in day 0, then it means that "
+                "he will be Alive always in future and so,"
+                " he is Immortal at day 0, which can be checked with our reasoner.";
+        var observe = "<b>Observe</b>:To derive the fact Immortal(adam)@0, an infinite number of rule application is required. "
+                   "This clearly cannot be obtained with materialisation, and so, it is essential to apply other reasoning mechanisms.";
+        $("#dataset").val(dataset);
+        $("#program").val(program);
+        $("#fact").val(fact);
+        $("#desc").html(desc);
+        $("#observe").html(observe);
+    }
+    else if(selectedVal == "fd"){
+        var dataset = "RedList(adam)@[0,20]\nHighRisk(david)@(-inf,+inf)\nHighRisk(ernesto)@(-inf,+inf)\nTransaction(adam,betty)@2.87\nTransaction(betty,charlie)@12.15\nTransaction(charlie,david)@17.5\nTransaction(charlie,ernesto)@129.43";
+        var program = "TransactionChain(X,Y) :- Transaction(X,Y), RedList(X)\nTransactionChain(X,Z) :- SOMETIME[-24,0] TransactionChain(X,Y), Transaction(Y,Z)\nALWAYS[0,+inf) Suspect(Y) :-  TransactionChain(X,Y), HighRisk(Y)";
+        var fact = "Suspect(david)@200";
+        var desc = " <b>Description</b>: Consider the task of detecting suspicious financial transactions which may lead to a fraud. To this end, we use a dataset containing transactions between clients and a program determining suspect clients."
+                   "In particular, the program recursively defines a relation TransactionChain which holds between X and Y if there is a "
+                   "chain of transaction started by X, who is on a RedList, and ended in Y, such that the period between consecutive transactions "
+                   "in this chain is at most 24 hours. If Y is of HighRisk and is involved in such a TransactionChain, then we treat them as a Suspect.";
+        var observe = " <b>Observe</b>:"
+         "The fact Suspect(david)@200 is entailed by the given dataset and program. However, Suspect(ernesto)@200 is not "
+         "entailed since the TransactionChain starting from adam to ernesto "
+         "does not satisfy the temporal requirement of short (at most 24 hours) periods between consecutive transactions.";
+         $("#dataset").val(dataset);
+         $("#program").val(program);
+         $("#fact").val(fact);
+         $("#desc").html(desc);
+         $("#observe").html(observe);
+    }
+    else if(selectedVal == "bd"){
+         var dataset = "Backup(unit1)@0\nDependent(unit2,unit1)@0\nDependent(unit3,unit1)@0";
+         var program = "ALWAYS[2] Backup(X) :- Backup(X)\nBackup(X) :- Dependent(X,Y), Backup(Y)\nALWAYS[0,+inf) Dependent(X,Y) :- Dependent(X,Y)";
+         var fact = "Backup(unit3)@16";
+         var desc = " <b>Description</b>:"
+         "Consider an application which after performing a backup of a particular unit, automatically schedules next backups every 2 day."
+         "Moreover, together with a backup of some unit, backups of all units dependent on this unit are also performed."
+         "In the example, unit2 and unit3 depend on unit1 and the first backup of unit1 is performed at the time point 0.";
+         var observe = "<b>Observe</b>:"
+              "The dataset and program entail Backup(unit3)@16, as well as Backup(unit3)@n, "
+              "for any even natural number n. Indeed, the first rule of the program fires leads to a `temporal recursion’,"
+              "and so, fires infinitely many times. However, entailment of any fact of the form Backup(unit3)@[n], for "
+              "even n can be derived using a finite number of rule application. On the other hand, Backup(unit3)@[1] is not entailed,"
+              "nor is Backup(unit3)@[n], for any odd n.";
+         $("#dataset").val(dataset);
+         $("#program").val(program);
+         $("#fact").val(fact);
+         $("#desc").html(desc);
+         $("#observe").html(observe);
+    }
    });
 </script>
 <script type="text/javascript">
-		set_content("fd");
+      var dataset = "Backup(unit1)@0\nDependent(unit2,unit1)@0\nDependent(unit3,unit1)@0";
+      var program = "ALWAYS[2] Backup(X) :- Backup(X)\nBackup(X) :- Dependent(X,Y), Backup(Y)\nALWAYS[0,+inf) Dependent(X,Y) :- Dependent(X,Y)";
+      var fact = "Backup(unit3)@16";
+      var desc = " <b>Description</b>:"
+         "Consider an application which after performing a backup of a particular unit, automatically schedules next backups every 2 day."
+         "Moreover, together with a backup of some unit, backups of all units dependent on this unit are also performed."
+         "In the example, unit2 and unit3 depend on unit1 and the first backup of unit1 is performed at the time point 0.";
+      var observe = "<b>Observe</b>:"
+              "The dataset and program entail Backup(unit3)@16, as well as Backup(unit3)@n, "
+              "for any even natural number n. Indeed, the first rule of the program fires leads to a `temporal recursion’,"
+              "and so, fires infinitely many times. However, entailment of any fact of the form Backup(unit3)@[n], for "
+              "even n can be derived using a finite number of rule application. On the other hand, Backup(unit3)@[1] is not entailed,"
+              "nor is Backup(unit3)@[n], for any odd n.";
+      $("#dataset").val(dataset);
+      $("#program").val(program);
+      $("#fact").val(fact);
+      $("#desc").html(desc);
+      $("#observe").html(observe);
+		
 </script>
 <py-script>
     from js import console
