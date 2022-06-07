@@ -86,7 +86,7 @@
     <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
     <py-env>
         - 'littleutils-0.2.2-py3-none-any.whl'
-        - 'meteor_reasoner-1.0.6-py3-none-any.whl'
+        - 'meteor_reasoner-1.0.7-py3-none-any.whl'
     </py-env>
 </head>
 
@@ -359,18 +359,21 @@
         dataset = Element('dataset').element.value
         dataset = dataset.split("\n")
         program = Element('program').element.value
-        program = program.split("\n")
-        fact = Element('fact').element.value
-        console.log(program)
-        console.log(dataset)
-        console.log(fact)
+	if "inf" in program:
+	     Element('result').element.innerText = "Canonical Method can not handle programs containing unbounded interval"
+	else:
+	     program = program.split("\n")
+	     fact = Element('fact').element.value
+	     console.log(program)
+	     console.log(dataset)
+	     console.log(fact)
 
-        fact = fact.strip()
-        flag =  is_entail(dataset, program, fact)
-        if flag:
-            Element('result').element.innerText = "Entailed"
-        else:
-            Element('result').element.innerText = "Not Entailed"
+	     fact = fact.strip()
+	     flag =  is_entail(dataset, program, fact)
+	     if flag:
+		 Element('result').element.innerText = "Entailed"
+	     else:
+		 Element('result').element.innerText = "Not Entailed"
 
 </py-script>
 <py-script>
